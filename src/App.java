@@ -8,9 +8,9 @@ import javafx.scene.Scene;
 public class App extends Application {
     public void start(Stage mainStage) throws Exception {
         MainPanel mainPanel = new MainPanel();
-        Scene mainScene = new Scene(mainPanel, 1920, 1080);
+        Scene mainScene = new Scene(mainPanel);
         LoginPanel loginPanel = new LoginPanel(mainStage, mainScene);
-        Scene loginScene = new Scene(loginPanel, 1920, 1080);
+        Scene loginScene = new Scene(loginPanel);
 
         mainStage.setTitle("FTP Client");
         mainStage.setScene(loginScene);

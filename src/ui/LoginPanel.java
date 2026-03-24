@@ -36,9 +36,17 @@ public class LoginPanel extends BorderPane {
                 "-fx-background-repeat: no-repeat; " +
                 "-fx-background-position: center;");
     }
-    // private void moveToMainScene() {
-    //     this.mainStage.setScene(mainScene);
-    // }
+
+    private boolean checkCredentials(String inputUser, String inputPass) {
+        System.out.println("User is " + inputUser);
+        System.out.println("Pass is " + inputPass);
+        return true;
+    }
+    private void moveToMainScene() {
+        this.mainStage.setScene(mainScene);
+        mainStage.setMaximized(false); 
+        mainStage.setMaximized(true);
+    }
 
     private void setUpCenter(BorderPane mainPane) {
         Label loginLabel = new Label("Login into the app");
@@ -63,9 +71,15 @@ public class LoginPanel extends BorderPane {
         nextButton.setPrefWidth(300);
 
         nextButton.setOnAction(event -> {
-            System.out.println("Button is cicked!");
-            this.mainStage.setScene(mainScene);
-            //hmmm
+            this.moveToMainScene();
+        });
+
+        loginButton.setOnAction(event -> {
+            String user = usernameBox.getText();
+            String pass = passwordBox.getText();
+            if(this.checkCredentials(user, pass)) {
+                this.moveToMainScene();
+            }
         });
 
         VBox centerLayout = new VBox(10);
