@@ -30,25 +30,21 @@ public class LoginPanel extends BorderPane {
     public LoginPanel(Stage inputStage, Scene inputScene) {     
         this.mainStage = inputStage;
         this.mainScene = inputScene;
-        this.setUpCenter(this);
-        this.setStyle("-fx-background-image: url('image/pacific.jpg'); " +
-                "-fx-background-size: cover; " + 
-                "-fx-background-repeat: no-repeat; " +
+        this.setUpCenter();
+        this.setUpTop();
+        this.setStyle("-fx-background-image: url('image/pacific.jpg');" +
+                "-fx-background-size: cover;" + 
+                "-fx-background-repeat: no-repeat;" +
                 "-fx-background-position: center;");
     }
 
-    private boolean checkCredentials(String inputUser, String inputPass) {
-        System.out.println("User is " + inputUser);
-        System.out.println("Pass is " + inputPass);
-        return true;
-    }
     private void moveToMainScene() {
         this.mainStage.setScene(mainScene);
         mainStage.setMaximized(false); 
         mainStage.setMaximized(true);
     }
 
-    private void setUpCenter(BorderPane mainPane) {
+    private void setUpCenter() {
         Label loginLabel = new Label("Login into the app");
         loginLabel.setFont(new Font("Arial Black", 24));
         loginLabel.setTextFill(Color.WHITE); 
@@ -71,13 +67,14 @@ public class LoginPanel extends BorderPane {
         nextButton.setPrefWidth(300);
 
         nextButton.setOnAction(event -> {
+            String user = "anonymous";
             this.moveToMainScene();
         });
 
         loginButton.setOnAction(event -> {
             String user = usernameBox.getText();
             String pass = passwordBox.getText();
-            if(this.checkCredentials(user, pass)) {
+            if(true) {
                 this.moveToMainScene();
             }
         });
@@ -88,8 +85,24 @@ public class LoginPanel extends BorderPane {
         centerLayout.setPadding(new Insets(0, 20, 20, 20)); 
         centerLayout.setMaxWidth(300);
         centerLayout.setMaxHeight(300);
-        centerLayout.setStyle("-fx-background-color: rgba(20, 20, 20, 1); -fx-background-radius: 15;");
+        centerLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 2;");
 
-        mainPane.setCenter(centerLayout);
+        this.setCenter(centerLayout);
     }
+    
+    private void setUpTop() {
+        VBox topLayout = new VBox(10);
+        topLayout.setAlignment(Pos.CENTER); 
+        topLayout.setPadding(new Insets(0, 20, 20, 20)); 
+        topLayout.setMinHeight(70);
+        topLayout.setMaxHeight(70);
+        topLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 1);"
+                + "-fx-background-image: url('image/logo.png');"
+                + "-fx-background-repeat: no-repeat; "
+                + "-fx-background-position: center top; " 
+                + "-fx-background-size: 400 70;");
+
+        this.setTop(topLayout);
+    }
+
 }
