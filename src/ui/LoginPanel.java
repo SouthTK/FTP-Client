@@ -19,13 +19,12 @@ import javafx.geometry.Insets;
 
 import javafx.stage.Stage;
 
-import javafx.event.ActionEvent;
-
-import javafx.beans.binding.Bindings;
+import background.ProcessThread;
 
 public class LoginPanel extends BorderPane {
     private Stage mainStage;
     private Scene mainScene;
+    private ProcessThread process;
 
     public LoginPanel(Stage inputStage, Scene inputScene) {     
         this.mainStage = inputStage;
@@ -36,6 +35,10 @@ public class LoginPanel extends BorderPane {
                 "-fx-background-size: cover;" + 
                 "-fx-background-repeat: no-repeat;" +
                 "-fx-background-position: center;");
+    }
+
+    public void linkProcess(ProcessThread input) {
+        this.process = input;
     }
 
     private void moveToMainScene() {
@@ -68,15 +71,15 @@ public class LoginPanel extends BorderPane {
 
         nextButton.setOnAction(event -> {
             String user = "anonymous";
+            this.process.setUser(user, null);
             this.moveToMainScene();
         });
 
         loginButton.setOnAction(event -> {
             String user = usernameBox.getText();
             String pass = passwordBox.getText();
-            if(true) {
-                this.moveToMainScene();
-            }
+            this.process.setUser(user, pass);
+            this.moveToMainScene();
         });
 
         VBox centerLayout = new VBox(10);
