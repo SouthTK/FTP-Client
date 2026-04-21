@@ -1,5 +1,6 @@
 import ui.LoginPanel;
 import ui.MainPanel;
+import ui.SceneManager;
 import background.ProcessThread;
 
 import javafx.application.Application;
@@ -9,10 +10,12 @@ import javafx.scene.Scene;
 
 public class App extends Application {
     public void start(Stage mainStage) throws Exception {
-        MainPanel mainPanel = new MainPanel();
+        SceneManager manager = new SceneManager(mainStage);
+        MainPanel mainPanel = new MainPanel(manager);
         Scene mainScene = new Scene(mainPanel);
-        LoginPanel loginPanel = new LoginPanel(mainStage, mainScene);
+        LoginPanel loginPanel = new LoginPanel(manager);
         Scene loginScene = new Scene(loginPanel);
+        manager.setUpSceneManager(mainScene, loginScene);
 
         mainStage.setTitle("FTP Client");
         mainStage.setScene(loginScene);

@@ -23,6 +23,6 @@ public class ProcessThread implements Runnable {
     public void setUser(String user, String pass) {
         this.username = user;
         this.password = pass;
-        this.mainPanel.updateOutput("Logged in as " + user);
+        this.mainPanel.updateOutput("[System] Logged in as " + user);
     }
 }

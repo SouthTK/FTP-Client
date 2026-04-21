@@ -22,13 +22,11 @@ import javafx.stage.Stage;
 import background.ProcessThread;
 
 public class LoginPanel extends BorderPane {
-    private Stage mainStage;
-    private Scene mainScene;
+    private SceneManager manager;
     private ProcessThread process;
 
-    public LoginPanel(Stage inputStage, Scene inputScene) {     
-        this.mainStage = inputStage;
-        this.mainScene = inputScene;
+    public LoginPanel(SceneManager manager) {     
+        this.manager = manager;
         this.setUpCenter();
         this.setUpTop();
         this.setStyle("-fx-background-image: url('image/pacific.jpg');" +
@@ -39,12 +37,6 @@ public class LoginPanel extends BorderPane {
 
     public void linkProcess(ProcessThread input) {
         this.process = input;
-    }
-
-    private void moveToMainScene() {
-        this.mainStage.setScene(mainScene);
-        mainStage.setMaximized(false); 
-        mainStage.setMaximized(true);
     }
 
     private void setUpCenter() {
@@ -72,14 +64,14 @@ public class LoginPanel extends BorderPane {
         nextButton.setOnAction(event -> {
             String user = "anonymous";
             this.process.setUser(user, null);
-            this.moveToMainScene();
+            this.manager.setToMainScene();
         });
 
         loginButton.setOnAction(event -> {
             String user = usernameBox.getText();
             String pass = passwordBox.getText();
             this.process.setUser(user, pass);
-            this.moveToMainScene();
+            this.manager.setToMainScene();
         });
 
         VBox centerLayout = new VBox(10);

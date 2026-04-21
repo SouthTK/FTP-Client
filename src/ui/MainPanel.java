@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
@@ -12,9 +13,11 @@ import javafx.geometry.Insets;
 import background.ProcessThread;
 
 public class MainPanel extends BorderPane {
+    private SceneManager manager;
     private ProcessThread process;
 
-    public MainPanel() {   
+    public MainPanel(SceneManager manager) {  
+        this.manager = manager; 
         this.setUpTop();  
         this.setUpBottom();
         this.setStyle("-fx-background-color: rgba(20, 20, 20, 1);");
@@ -27,12 +30,28 @@ public class MainPanel extends BorderPane {
     public void updateOutput(String input) {
         VBox box = (VBox) this.getBottom();
         TextArea outputBox = (TextArea) box.getChildren().get(0);
-        outputBox.appendText(input);
+        outputBox.appendText(input + System.lineSeparator());
     }
 
     private void setUpTop() {
-        VBox topLayout = new VBox(10);
-        topLayout.setAlignment(Pos.CENTER); 
+        Component.CustomButton logoutButton = new Component.CustomButton();
+        logoutButton.setText("Log out");
+        logoutButton.setPrefWidth(80);
+
+        logoutButton.setOnAction(event -> {
+            VBox box = (VBox) this.getBottom();
+            TextArea outputBox = (TextArea) box.getChildren().get(0);
+            outputBox.clear();
+            this.manager.setToLoginScene();
+        });
+
+        Component.CustomButton connectButton = new Component.CustomButton();
+        connectButton.setText("Connect");
+        connectButton.setPrefWidth(80);
+
+        HBox topLayout = new HBox(10);
+        topLayout.getChildren().addAll(logoutButton, connectButton); 
+        topLayout.setAlignment(Pos.CENTER_LEFT); 
         topLayout.setPadding(new Insets(0, 20, 20, 20)); 
         topLayout.setMinHeight(70);
         topLayout.setMaxHeight(70);
