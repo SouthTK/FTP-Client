@@ -23,7 +23,6 @@ import background.ProcessThread;
 
 public class LoginPanel extends BorderPane {
     private SceneManager manager;
-    private ProcessThread process;
 
     public LoginPanel(SceneManager manager) {     
         this.manager = manager;
@@ -33,10 +32,6 @@ public class LoginPanel extends BorderPane {
                 "-fx-background-size: cover;" + 
                 "-fx-background-repeat: no-repeat;" +
                 "-fx-background-position: center;");
-    }
-
-    public void linkProcess(ProcessThread input) {
-        this.process = input;
     }
 
     private void setUpCenter() {
@@ -63,15 +58,13 @@ public class LoginPanel extends BorderPane {
 
         nextButton.setOnAction(event -> {
             String user = "anonymous";
-            this.process.setUser(user, null);
-            this.manager.setToMainScene();
+            this.manager.setToMainScene(user, null);
         });
 
         loginButton.setOnAction(event -> {
             String user = usernameBox.getText();
             String pass = passwordBox.getText();
-            this.process.setUser(user, pass);
-            this.manager.setToMainScene();
+            this.manager.setToMainScene(user, pass);
         });
 
         VBox centerLayout = new VBox(10);

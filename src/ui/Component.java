@@ -26,16 +26,4 @@ public class Component {
             });
         }
     }
-
-    // protected static class CustomBorderPane extends BorderPane {
-    //     private void setUpTop() {
-    //         VBox topLayout = new VBox(10);
-    //         topLayout.setAlignment(Pos.CENTER); 
-    //         //topLayout.getChildren().addAll(loginLabel, usernameBox, passwordBox, loginButton, nextLabel, nextButton); 
-    //         topLayout.setPadding(new Insets(0, 20, 20, 20)); 
-    //         //topLayout.setMaxWidth(300);
-    //         topLayout.setMaxHeight(100);
-    //         topLayout.setStyle("-fx-background-color: rgba(20, 20, 20, 1); -fx-background-radius: 15;");
-    //     }
-    // }
 }

@@ -25,7 +25,7 @@ public class App extends Application {
         ProcessThread process = new ProcessThread(mainPanel);
         Thread processThread = new Thread(process);
         mainPanel.linkProcess(process);
-        loginPanel.linkProcess(process);
+        manager.linkProcess(process);
         processThread.start();
     }
     public static void main(String[] args) {
