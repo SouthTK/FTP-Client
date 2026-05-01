@@ -33,41 +33,58 @@ public class ProcessThread implements Runnable {
 
     public void connect(String serverAddress) {
         if (this.socket == null) {
-            this.print("[System] Trying to connect to " + serverAddress);
+            this.print("Trying to connect to " + serverAddress + ".");
             try {
                 this.socket = new Socket(serverAddress, 21);
                 this.socket.setSoTimeout(2000);
                 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 this.out = new PrintWriter(socket.getOutputStream(), true);
-
-                this.print(this.in.readLine());
+                // ---- Welcome Message ------
+                this.print(this.in.readLine()); 
                 this.out.println("USER " + this.username);
-
-                try {
-                    while (true) {
-                        this.print(this.in.readLine());
-                    }
-                } catch (Exception e) {}
-                
+                // ---- Reply after USER -----
+                String reply = this.in.readLine();
+                this.print(reply); 
+                // ---- If require PASS -------
+                if (reply.charAt(0) == '3') {
+                    this.out.println("PASS " + this.password);
+                    reply = this.in.readLine();
+                }
+                // ---- Error and Failures ----
+                if (reply.charAt(0) == '1') {
+                    this.print("An error has occur.");
+                    this.disconnect();
+                } else if (reply.substring(0, 3).equals("230")) {
+                    try {
+                        while (true) {
+                            this.print(this.in.readLine());
+                        }
+                    } catch (Exception e) {}
+                } else if (reply.charAt(0) == '3') {
+                    this.disconnect();
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.disconnect();
+                    throw new Exception();
+                }            
             } catch (Exception e) {
-                this.print("[System] Connect fails");
+                this.print("Connect fails");
+                this.disconnect();
                 e.printStackTrace();
             };   
-        } else {
-            this.print("[System] Already connected to a server, disconnect first.");
-        }
+        } else {this.print("Already connected to a server, disconnect first.");}
     }
 
     public void disconnect() {
         if (this.socket != null) {
-            this.print("[System] Disconnecting.");
+            this.print("Disconnecting.");
             try {
                 this.socket.close();
                 this.socket = null;
                 this.in = null;
                 this.out = null;
             } catch (Exception e) {
-                this.print("[System] Disconnect fails");
+                this.print("Disconnect fails");
                 e.printStackTrace();
             };
         }
@@ -88,10 +105,10 @@ public class ProcessThread implements Runnable {
     public void setUser(String user, String pass) {
         this.username = user;
         this.password = pass;
-        this.mainPanel.updateOutput("[System] Logged in as " + user);
+        this.print("Current user: " + user);
     }
 
     public void print(String input) {
-        this.mainPanel.updateOutput(input);
+        this.mainPanel.updateOutput("[System] " + input);
     }
 }
