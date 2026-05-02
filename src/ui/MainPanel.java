@@ -22,6 +22,7 @@ public class MainPanel extends BorderPane {
     public MainPanel(SceneManager manager) {  
         this.manager = manager; 
         this.setUpTop(); 
+        this.setUpLeft();
         this.setUpCenter(); 
         this.setUpBottom();
         this.setStyle("-fx-background-color: rgba(20, 20, 20, 1);");
@@ -35,6 +36,18 @@ public class MainPanel extends BorderPane {
         VBox box = (VBox) this.getBottom();
         TextArea outputBox = (TextArea) box.getChildren().get(0);
         outputBox.appendText(input + System.lineSeparator());
+    }
+
+    public void clearDirectory() {
+        VBox box = (VBox) this.getLeft();
+        TextArea directoryBox = (TextArea) box.getChildren().get(0);
+        directoryBox.clear();
+    }
+    
+    public void updateDirectory(String input) {
+        VBox box = (VBox) this.getLeft();
+        TextArea directoryBox = (TextArea) box.getChildren().get(0);
+        directoryBox.appendText(input + System.lineSeparator());
     }
 
     private void setUpTop() {
@@ -85,17 +98,38 @@ public class MainPanel extends BorderPane {
         this.setTop(topLayout);
     }
 
+    private void setUpLeft() {
+        TextArea directoryBox = new TextArea();
+        directoryBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
+        directoryBox.setEditable(false); 
+        directoryBox.setPromptText("Current directory listing will appear here...");
+        directoryBox.setPrefHeight(600);
+
+        VBox leftLayout = new VBox(10);
+        leftLayout.getChildren().addAll(directoryBox); 
+        leftLayout.setPadding(new Insets(10, 10, 10, 10)); 
+
+        this.setLeft(leftLayout);
+    }
+
     private void setUpCenter() {
         Component.CustomButton refreshButton = new Component.CustomButton();
         refreshButton.setText("Refresh");
         refreshButton.setPrefWidth(80);
         refreshButton.setOnAction(event -> {
-            this.process.pwd();
+            this.process.refresh();
+        });
+
+        Component.CustomButton testButton = new Component.CustomButton();
+        testButton.setText("Test");
+        testButton.setPrefWidth(80);
+        testButton.setOnAction(event -> {
+            this.process.test();
         });
 
         VBox centerLayout = new VBox(10);
-        centerLayout.getChildren().addAll(refreshButton); 
-        centerLayout.setPadding(new Insets(0, 10, 10, 10)); 
+        centerLayout.getChildren().addAll(refreshButton, testButton); 
+        centerLayout.setPadding(new Insets(10, 10, 10, 10)); 
 
         this.setCenter(centerLayout);
     }

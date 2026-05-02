@@ -1,7 +1,5 @@
-import ui.LoginPanel;
-import ui.MainPanel;
-import ui.SceneManager;
-import background.ProcessThread;
+import ui.*;
+import background.*;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
