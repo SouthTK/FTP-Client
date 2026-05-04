@@ -13,6 +13,8 @@ import javafx.scene.layout.Priority;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 
+import javafx.application.Platform;
+
 import background.ProcessThread;
 
 public class MainPanel extends BorderPane {
@@ -33,21 +35,52 @@ public class MainPanel extends BorderPane {
     }
 
     public void updateOutput(String input) {
-        VBox box = (VBox) this.getBottom();
-        TextArea outputBox = (TextArea) box.getChildren().get(0);
-        outputBox.appendText(input + System.lineSeparator());
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getBottom();
+            TextArea outputBox = (TextArea) box.getChildren().get(0);
+            outputBox.appendText(input + System.lineSeparator());
+        });    
+    }
+
+    public void updateCurrentDirectory(String input) {
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getLeft();
+            Component.CustomButton currentDirectory = (Component.CustomButton) box.getChildren().get(0);
+            currentDirectory.setText(input);
+        });
     }
 
     public void clearDirectory() {
-        VBox box = (VBox) this.getLeft();
-        TextArea directoryBox = (TextArea) box.getChildren().get(0);
-        directoryBox.clear();
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getLeft();
+            TextArea directoryBox = (TextArea) box.getChildren().get(1);
+            directoryBox.clear();
+        });
     }
     
     public void updateDirectory(String input) {
-        VBox box = (VBox) this.getLeft();
-        TextArea directoryBox = (TextArea) box.getChildren().get(0);
-        directoryBox.appendText(input + System.lineSeparator());
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getLeft();
+            TextArea directoryBox = (TextArea) box.getChildren().get(1);
+            directoryBox.appendText(input + System.lineSeparator());
+        });
+    }
+
+    public void clearDirectoryCombo() {
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getCenter();
+            Component.CustomDropDown directoryCombo = (Component.CustomDropDown) box.getChildren().get(3);
+            directoryCombo.getItems().clear();
+            directoryCombo.getItems().add("..");
+        });
+    }
+
+    public void updateDirectoryCombo(String input) {
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getCenter();
+            Component.CustomDropDown directoryCombo = (Component.CustomDropDown) box.getChildren().get(3);
+            directoryCombo.getItems().add(input);
+        });
     }
 
     private void setUpTop() {
@@ -99,6 +132,10 @@ public class MainPanel extends BorderPane {
     }
 
     private void setUpLeft() {
+        Component.CustomButton currentDirectory = new Component.CustomButton();
+        currentDirectory.setText("");
+        currentDirectory.setPrefWidth(200);
+
         TextArea directoryBox = new TextArea();
         directoryBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
         directoryBox.setEditable(false); 
@@ -106,29 +143,68 @@ public class MainPanel extends BorderPane {
         directoryBox.setPrefHeight(600);
 
         VBox leftLayout = new VBox(10);
-        leftLayout.getChildren().addAll(directoryBox); 
+        leftLayout.getChildren().addAll(currentDirectory, directoryBox); 
         leftLayout.setPadding(new Insets(10, 10, 10, 10)); 
 
         this.setLeft(leftLayout);
     }
 
     private void setUpCenter() {
+        int preWidth = 120;
         Component.CustomButton refreshButton = new Component.CustomButton();
         refreshButton.setText("Refresh");
-        refreshButton.setPrefWidth(80);
+        refreshButton.setPrefWidth(preWidth);
         refreshButton.setOnAction(event -> {
             this.process.refresh();
         });
 
-        Component.CustomButton testButton = new Component.CustomButton();
-        testButton.setText("Test");
-        testButton.setPrefWidth(80);
-        testButton.setOnAction(event -> {
+        Component.CustomButton createFolderButton = new Component.CustomButton();
+        createFolderButton.setText("Create Folder");
+        createFolderButton.setPrefWidth(preWidth);
+        createFolderButton.setOnAction(event -> {
+            this.process.test();
+        });
+
+        Component.CustomButton deleteButton = new Component.CustomButton();
+        deleteButton.setText("Delete");
+        deleteButton.setPrefWidth(preWidth);
+        deleteButton.setOnAction(event -> {
+            this.process.test();
+        });
+
+        Component.CustomDropDown directoryCombo = new Component.CustomDropDown();
+        directoryCombo.setPrefWidth(preWidth);
+        // directoryCombo.setOnAction(event -> {
+        //     String directory = directoryCombo.getValue();            
+        //     //this.process.changeDirectory(directory);
+        //     System.out.println("change directory");
+        // });
+
+        Component.CustomButton directoryButton = new Component.CustomButton();
+        directoryButton.setText("Change directory");
+        directoryButton.setPrefWidth(preWidth);
+        directoryButton.setOnAction(event -> {
+            String directory = directoryCombo.getValue(); 
+            this.process.changeDirectory(directory);
+        });
+
+        Component.CustomButton uploadButton = new Component.CustomButton();
+        uploadButton.setText("Upload");
+        uploadButton.setPrefWidth(preWidth);
+        uploadButton.setOnAction(event -> {
+            this.process.test();
+        });
+
+        Component.CustomButton downloadButton = new Component.CustomButton();
+        downloadButton.setText("Download");
+        downloadButton.setPrefWidth(preWidth);
+        downloadButton.setOnAction(event -> {
             this.process.test();
         });
 
         VBox centerLayout = new VBox(10);
-        centerLayout.getChildren().addAll(refreshButton, testButton); 
+        centerLayout.getChildren().addAll(refreshButton, createFolderButton, 
+                deleteButton, directoryCombo, directoryButton, uploadButton, downloadButton); 
         centerLayout.setPadding(new Insets(10, 10, 10, 10)); 
 
         this.setCenter(centerLayout);

@@ -24,12 +24,29 @@ public class ListThread implements Runnable {
     public void run() {
         try {
             this.mainPanel.clearDirectory();
-            String reply = this.in.readLine();
+            this.mainPanel.clearDirectoryCombo();
+            String reply = this.readReply();
             while (reply != null) {
-                System.out.println(reply);
                 this.mainPanel.updateDirectory(reply);
-                reply = this.in.readLine();
+                reply = this.readReply();
             }
-        } catch (Exception e) {System.out.println("reading fails.");}
+        } catch (Exception e) {System.out.println("Reading list fails.");}
+    }
+
+    private String readReply() {
+        try {
+            String reply = this.in.readLine();
+            if (reply != null) {
+                if (reply.charAt(0) == 'd') {
+                    String[] parts = reply.trim().split("\\s+");
+                    String directoryName = parts[parts.length - 1];
+                    this.mainPanel.updateDirectoryCombo(directoryName);
+                }
+            }
+            return reply;
+        } catch (Exception e) {
+            System.out.println("Reading fails.");
+            return null;
+        }
     }
 }

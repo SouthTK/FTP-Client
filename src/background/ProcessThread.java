@@ -39,10 +39,9 @@ public class ProcessThread implements Runnable {
                 this.socket.setSoTimeout(2000);
                 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 this.out = new PrintWriter(socket.getOutputStream(), true);
+                this.readReply(true);
 
-                this.readReply(true);// is there anything need to handle here?
                 this.out.println("USER " + this.username);
-
                 String reply = this.readReply(true);
                 if (reply.charAt(0) == '3') {
                     this.out.println("PASS " + this.password);
@@ -52,6 +51,8 @@ public class ProcessThread implements Runnable {
                 if (reply.charAt(0) == '1') {
                     this.print("An error has occur.");
                     this.disconnect();
+                } else if (reply.charAt(0) == '2') {
+                    this.refresh();
                 } else if (reply.charAt(0) == '3') {
                     this.disconnect();
                     throw new Exception();
@@ -79,6 +80,7 @@ public class ProcessThread implements Runnable {
                 this.socket = null;
                 this.in = null;
                 this.out = null;
+                this.mainPanel.clearDirectory();
             } catch (Exception e) {
                 this.print("Failed to disconnect.");
                 e.printStackTrace();
@@ -98,6 +100,8 @@ public class ProcessThread implements Runnable {
 
     public void refresh() {
         if (this.socket == null) {return;}
+        this.pwd();
+
         String reply = this.pasv();
         if (reply == null) {return;}
         else {
@@ -105,9 +109,7 @@ public class ProcessThread implements Runnable {
             String[] parts = reply.split(",");
 
             String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
-            int x = Integer.parseInt(parts[4]);
-            int y = Integer.parseInt(parts[5]);
-            int port = 256 * x + y;
+            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
             
             Thread thread = new Thread(new ListThread(address, port, mainPanel));
             this.list(); 
@@ -117,13 +119,20 @@ public class ProcessThread implements Runnable {
         }
     }
 
+    public void changeDirectory(String input) {
+        if (this.socket == null) {return;}
+        this.cwd(input);
+        this.refresh();
+    }
+
     private void pwd() {
         if (this.socket == null) {return;}
         else {
             try {
                 this.out.println("PWD");
-                this.print(this.in.readLine());
-                
+                String reply = this.readReply(true);
+                String[] parts = reply.split("\"");
+                this.mainPanel.updateCurrentDirectory(parts[1]);
             } catch (Exception e) {}
         }
     }
@@ -138,6 +147,14 @@ public class ProcessThread implements Runnable {
                 if (response.substring(0, 3).equals("227")) {return response.substring(3);}
                 else {return null;}
             } catch (Exception e) {return null;}
+        }
+    }
+    
+    private void cwd(String input) {
+        if (this.socket == null) {return;}
+        else {
+            this.out.println("CWD " + input);
+            this.readReply(true);
         }
     }
 
@@ -160,14 +177,14 @@ public class ProcessThread implements Runnable {
     }
     
     public void test() {
-        // if (this.socket == null) {return;}
-        // else {
-        //     this.out.println("PASV");
-        //     try {
-        //         while (true) {
-        //             this.print(this.in.readLine());
-        //         }
-        //     } catch (Exception e) {}
-        // }
+        if (this.socket == null) {return;}
+        else {
+            this.out.println("CWD gnu");
+            try {
+                while (true) {
+                    this.print(this.in.readLine());
+                }
+            } catch (Exception e) {}
+        }
     }
 }
