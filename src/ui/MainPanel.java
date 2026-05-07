@@ -107,10 +107,14 @@ public class MainPanel extends BorderPane {
         logoutButton.setText("Log out");
         logoutButton.setPrefWidth(80);
         logoutButton.setOnAction(event -> {
+            this.process.disconnect();
+            this.manager.setToLoginScene();
+            this.clearDirectory();
+            this.clearDirectoryCombo();
+            
             VBox box = (VBox) this.getBottom();
             TextArea outputBox = (TextArea) box.getChildren().get(0);
             outputBox.clear();
-            this.manager.setToLoginScene();
         });
 
         Region spacer = new Region();
@@ -174,11 +178,6 @@ public class MainPanel extends BorderPane {
 
         Component.CustomDropDown directoryCombo = new Component.CustomDropDown();
         directoryCombo.setPrefWidth(preWidth);
-        // directoryCombo.setOnAction(event -> {
-        //     String directory = directoryCombo.getValue();            
-        //     //this.process.changeDirectory(directory);
-        //     System.out.println("change directory");
-        // });
 
         Component.CustomButton directoryButton = new Component.CustomButton();
         directoryButton.setText("Change directory");
