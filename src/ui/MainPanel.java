@@ -3,6 +3,8 @@ package ui;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -12,6 +14,8 @@ import javafx.scene.layout.Priority;
 
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
+
+import javafx.application.Platform;
 
 import background.ProcessThread;
 
@@ -32,22 +36,60 @@ public class MainPanel extends BorderPane {
         this.process = input;
     }
 
-    public void updateOutput(String input) {
-        VBox box = (VBox) this.getBottom();
-        TextArea outputBox = (TextArea) box.getChildren().get(0);
-        outputBox.appendText(input + System.lineSeparator());
+
+    public void updateCurrentDirectory(String input) {
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getLeft();
+            Component.CustomButton currentDirectory = (Component.CustomButton) box.getChildren().get(0);
+            currentDirectory.setText(input);
+        });
     }
 
-    public void clearDirectory() {
-        VBox box = (VBox) this.getLeft();
-        TextArea directoryBox = (TextArea) box.getChildren().get(0);
-        directoryBox.clear();
+    public void updateOutput(String input) {
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getBottom();
+            TextArea outputBox = (TextArea) box.getChildren().get(0);
+            outputBox.appendText(input + System.lineSeparator());
+        });    
     }
+
+    public void clearOutput() {
+        Platform.runLater(() -> {
+            VBox box = (VBox) this.getBottom();
+            TextArea outputBox = (TextArea) box.getChildren().get(0);
+            outputBox.clear();
+        });   
+    }
+
     
     public void updateDirectory(String input) {
+        Platform.runLater(() -> {
+            String[] parts = input.trim().split("\\s+");
+            String date = parts[5] + " " + parts[6] + " " + parts[7];
+            String name = parts[8];
+            if (parts.length > 9) {
+                for (int i = 9; i < parts.length; i++) {name += " " + parts[i];}
+            }
+
+            Component.FileInfo info = new Component.FileInfo(parts[0], parts[1], parts[2], parts[3], 
+                    parts[4], date, name);
+
+            VBox box = (VBox) this.getLeft();
+            Component.CustomView directoryView = (Component.CustomView) box.getChildren().get(1);
+            directoryView.getItems().add(info);
+        });
+    }
+
+    public void clearDirectory(boolean fullClear) {
         VBox box = (VBox) this.getLeft();
-        TextArea directoryBox = (TextArea) box.getChildren().get(0);
-        directoryBox.appendText(input + System.lineSeparator());
+        Component.CustomView directoryView = (Component.CustomView) box.getChildren().get(1);
+        directoryView.getItems().clear();
+        if (!fullClear) {
+            Component.FileInfo parent = new Component.FileInfo(" ", "", "", "", "", "", "..");
+            Component.FileInfo root = new Component.FileInfo(" ", "", "", "", "", "", "/");
+            directoryView.getItems().add(root);
+            directoryView.getItems().add(parent);
+        }
     }
 
     private void setUpTop() {
@@ -68,16 +110,19 @@ public class MainPanel extends BorderPane {
         disconnectButton.setPrefWidth(80);
         disconnectButton.setOnAction(event -> {
             this.process.disconnect();
+            this.updateCurrentDirectory("");
+            this.clearDirectory(true);
         });
 
         Component.CustomButton logoutButton = new Component.CustomButton();
         logoutButton.setText("Log out");
         logoutButton.setPrefWidth(80);
         logoutButton.setOnAction(event -> {
-            VBox box = (VBox) this.getBottom();
-            TextArea outputBox = (TextArea) box.getChildren().get(0);
-            outputBox.clear();
+            this.process.disconnect();
             this.manager.setToLoginScene();
+            this.updateCurrentDirectory("");
+            this.clearDirectory(true);  
+            this.clearOutput();
         });
 
         Region spacer = new Region();
@@ -99,36 +144,101 @@ public class MainPanel extends BorderPane {
     }
 
     private void setUpLeft() {
-        TextArea directoryBox = new TextArea();
-        directoryBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
-        directoryBox.setEditable(false); 
-        directoryBox.setPromptText("Current directory listing will appear here...");
-        directoryBox.setPrefHeight(600);
+        Component.CustomButton currentDirectory = new Component.CustomButton();
+        currentDirectory.setText("");
+        currentDirectory.setPrefWidth(200);
+
+        Component.CustomView directoryView = new Component.CustomView();
 
         VBox leftLayout = new VBox(10);
-        leftLayout.getChildren().addAll(directoryBox); 
+        leftLayout.getChildren().addAll(currentDirectory, directoryView); 
         leftLayout.setPadding(new Insets(10, 10, 10, 10)); 
 
         this.setLeft(leftLayout);
     }
 
     private void setUpCenter() {
+        int preWidth = 120;
         Component.CustomButton refreshButton = new Component.CustomButton();
         refreshButton.setText("Refresh");
-        refreshButton.setPrefWidth(80);
+        refreshButton.setPrefWidth(preWidth);
         refreshButton.setOnAction(event -> {
             this.process.refresh();
         });
 
-        Component.CustomButton testButton = new Component.CustomButton();
-        testButton.setText("Test");
-        testButton.setPrefWidth(80);
-        testButton.setOnAction(event -> {
-            this.process.test();
+        Component.CustomButton deleteButton = new Component.CustomButton();
+        deleteButton.setText("Delete");
+        deleteButton.setPrefWidth(preWidth);
+        deleteButton.setOnAction(event -> {
+            VBox box = (VBox) this.getLeft();
+            TableView<Component.FileInfo> directoryView = (TableView<Component.FileInfo>) box.getChildren().get(1);
+            Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
+
+            if (selectedFile != null) {
+                String fileName = selectedFile.getName();
+                this.process.deleteFile(fileName);
+            }
+        });
+
+        Component.CustomButton directoryButton = new Component.CustomButton();
+        directoryButton.setText("Change directory");
+        directoryButton.setPrefWidth(preWidth);
+        directoryButton.setOnAction(event -> {
+            VBox box = (VBox) this.getLeft();
+            TableView<Component.FileInfo> directoryView = (TableView<Component.FileInfo>) box.getChildren().get(1);
+            Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
+
+            if (selectedFile != null) {
+                String directory = selectedFile.getName();
+                this.process.changeDirectory(directory);
+            }
+        });
+
+        TextField nameBox = new TextField();
+        nameBox.setPromptText("Folder Name"); 
+        nameBox.setMinWidth(preWidth);
+        nameBox.setMaxWidth(preWidth);
+        nameBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);"
+                + "-fx-prompt-text-fill: white;");
+
+        Component.CustomButton mkdirButton = new Component.CustomButton();
+        mkdirButton.setText("Create Folder");
+        mkdirButton.setPrefWidth(preWidth);
+        mkdirButton.setOnAction(event -> {
+            this.process.createFolder(nameBox.getText());
+        });
+
+        Component.CustomButton rmdirButton = new Component.CustomButton();
+        rmdirButton.setText("Delete Folder");
+        rmdirButton.setPrefWidth(preWidth);
+        rmdirButton.setOnAction(event -> {
+            VBox box = (VBox) this.getLeft();
+            TableView<Component.FileInfo> directoryView = (TableView<Component.FileInfo>) box.getChildren().get(1);
+            Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
+
+            if (selectedFile != null) {
+                String directory = selectedFile.getName();
+                this.process.deleteFolder(directory);
+            }  
+        });
+
+        Component.CustomButton uploadButton = new Component.CustomButton();
+        uploadButton.setText("Upload");
+        uploadButton.setPrefWidth(preWidth);
+        uploadButton.setOnAction(event -> {
+            //this.process.test();
+        });
+
+        Component.CustomButton downloadButton = new Component.CustomButton();
+        downloadButton.setText("Download");
+        downloadButton.setPrefWidth(preWidth);
+        downloadButton.setOnAction(event -> {
+            //this.process.test();
         });
 
         VBox centerLayout = new VBox(10);
-        centerLayout.getChildren().addAll(refreshButton, testButton); 
+        centerLayout.getChildren().addAll(refreshButton, deleteButton, directoryButton, nameBox,
+                mkdirButton, rmdirButton, uploadButton, downloadButton); 
         centerLayout.setPadding(new Insets(10, 10, 10, 10)); 
 
         this.setCenter(centerLayout);

@@ -5,16 +5,14 @@ import java.net.Socket;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public class RetvThread implements Runnable {
+public class RetrThread implements Runnable {
     private Socket socket;
     private BufferedReader in;
 
-    RetvThread(String address, int port) {
-        try {
-            this.socket = new Socket(address, port);
-            this.socket.setSoTimeout(2000);
-            this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-        } catch (Exception e) {System.out.println("Create socket from PASV failed.");}
+    RetrThread(String address, int port) throws Exception {
+        this.socket = new Socket(address, port);
+        //this.socket.setSoTimeout(2000);
+        this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
     }
 
     public void run() {
