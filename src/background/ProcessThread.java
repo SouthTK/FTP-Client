@@ -31,7 +31,7 @@ public class ProcessThread implements Runnable {
         }
     }
 
-    // backend method
+    // backend methods
     public void setUser(String user, String pass) {
         this.username = user;
         this.password = pass;
@@ -42,13 +42,13 @@ public class ProcessThread implements Runnable {
         this.mainPanel.updateOutput("[System] " + input);
     }
 
-    // button method
+    // button methods
     public void connect(String serverAddress) {
         if (this.socket == null) {
             this.print("Trying to connect to " + serverAddress + ".");
             try {
                 this.socket = new Socket(serverAddress, 21);
-                this.socket.setSoTimeout(2000);
+                //this.socket.setSoTimeout(5000);
                 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 this.out = new PrintWriter(socket.getOutputStream(), true);
                 this.readReply(true);
@@ -60,22 +60,23 @@ public class ProcessThread implements Runnable {
                     reply = this.readReply(true);
                 }
 
-                if (reply.charAt(0) == '1') {
-                    this.print("An error has occur.");
-                    this.disconnect();
-                } else if (reply.charAt(0) == '2') {
-                    this.refresh();
-                } else if (reply.charAt(0) == '3') {
+                if (reply.charAt(0) == '3') {
+                    this.out.println("ACCT " + "please let me in");
+                    reply = this.readReply(true);
+                } //fix later
+
+                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
                     this.print("An error has occur.");
                     this.disconnect();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("A failure has occur.");
                     this.disconnect();
-                    throw new Exception();
-                }            
+                } else if (reply.charAt(0) == '2') {
+                    this.refresh();
+                }         
             } catch (Exception e) {
                 this.print("Failed to connect.");
                 this.disconnect();
-                e.printStackTrace();
             };   
         } else {this.print("Already connected to a server, disconnect first.");}
     }
@@ -93,7 +94,6 @@ public class ProcessThread implements Runnable {
                 this.socket = null;
                 this.in = null;
                 this.out = null;
-                this.mainPanel.clearDirectory();
             } catch (Exception e) {
                 this.print("Failed to disconnect.");
                 e.printStackTrace();
@@ -112,11 +112,12 @@ public class ProcessThread implements Runnable {
 
             String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
             int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
-            Thread thread = new Thread(new ListThread(address, port, mainPanel));
-
-            if (this.list()) {
-                thread.start();
-            } 
+            try {
+                Thread thread = new Thread(new ListThread(address, port, mainPanel));
+                if (this.list()) {thread.start();} 
+            } catch (Exception e) {
+                this.print("Failed to establish data connection.");
+            }
         }
     }
 
@@ -127,7 +128,46 @@ public class ProcessThread implements Runnable {
         }
     }
 
-    // command method
+    public void createFolder(String input) {
+        if (this.socket == null || !this.mkd(input)) {return;}
+        else {
+            this.refresh();
+        }
+    }
+
+    
+    public void deleteFolder(String input) {
+        if (this.socket == null || !this.rmd(input)) {return;}
+        else {
+            this.refresh();
+        }
+    }
+
+    public void deleteFile(String input) {
+        if (this.socket == null || !this.dele(input)) {return;}
+        else {
+            this.refresh();
+        }
+    }
+
+    public void download() {
+        if (this.socket == null) {return;}
+
+        String reply = this.pasv();
+        if (reply == null) {return;}
+        else {
+            reply = reply.replaceAll("[^0-9,]", ""); 
+            String[] parts = reply.split(",");
+
+            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
+            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
+            
+            this.out.println("TYPE I");
+            this.readReply(true);
+        }
+    }
+
+    // command methods
     private boolean pwd() {
         if (this.socket == null) {return false;}
         else {
@@ -136,10 +176,10 @@ public class ProcessThread implements Runnable {
                 String reply = this.readReply(true);
 
                 if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
-                    this.mainPanel.updateCurrentDirectory("An error has occur.");
+                    this.print("An error has occur.");
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
-                    this.mainPanel.updateCurrentDirectory("An failure has occur.");
+                    this.print("An failure has occur.");
                     throw new Exception();
                 } else {
                     String[] parts = reply.split("\"");
@@ -153,29 +193,6 @@ public class ProcessThread implements Runnable {
         }
     }
 
-    private boolean cwd(String input) {
-        if (this.socket == null) {return false;}
-        else {
-            try {
-                this.out.println("CWD " + input);
-                String reply = this.readReply(true);
-
-                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
-                    this.mainPanel.updateCurrentDirectory("An error has occur.");
-                    throw new Exception();
-                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
-                    this.mainPanel.updateCurrentDirectory("An failure has occur.");
-                    throw new Exception();
-                } else {
-                    return true;
-                }
-            } catch (Exception e) {
-                this.print("CWD fails.");
-                return false;
-            }
-        }
-    }
-
     private String pasv() {
         if (this.socket == null) {return null;}
         else {
@@ -184,18 +201,110 @@ public class ProcessThread implements Runnable {
                 String reply = this.readReply(true);
 
                 if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
-                    this.mainPanel.updateCurrentDirectory("An error has occur.");
+                    this.print("An error has occur.");
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
-                    this.mainPanel.updateCurrentDirectory("An failure has occur.");
+                    this.print("An failure has occur.");
                     throw new Exception();
                 } else {
                     return reply.substring(3);
                 }
             } catch (Exception e) {
-                this.print("CWD fails.");
+                this.print("PASV fails.");
                 return null;
                 }
+        }
+    }
+
+    private boolean cwd(String input) {
+        if (this.socket == null) {return false;}
+        else {
+            try {
+                this.out.println("CWD " + input);
+                String reply = this.readReply(true);
+
+                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                } else {
+                    return true;
+                }
+            } catch (Exception e) {
+                this.print("CWD " + input + " fails.");
+                return false;
+            }
+        }
+    }
+
+    private boolean mkd(String input) {
+        if (this.socket == null) {return false;}
+        else {
+            try {
+                this.out.println("MKD " + input);
+                String reply = this.readReply(true);
+
+                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                } else {
+                    return true;
+                }
+            } catch (Exception e) {
+                this.print("MKD " + input + " fails.");
+                return false;
+            }
+        }
+    }
+
+    private boolean rmd(String input) {
+        if (this.socket == null) {return false;}
+        else {
+            try {
+                this.out.println("RMD " + input);
+                String reply = this.readReply(true);
+
+                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                } else {
+                    return true;
+                }
+            } catch (Exception e) {
+                this.print("RMD " + input + " fails.");
+                return false;
+            }
+        }
+    }
+
+    private boolean dele(String input) {
+        if (this.socket == null) {return false;}
+        else {
+            try {
+                this.out.println("DELE " + input);
+                String reply = this.readReply(true);
+
+                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                } else {
+                    return true;
+                }
+            } catch (Exception e) {
+                this.print("DELE " + input + " fails.");
+                return false;
+            }
         }
     }
 
@@ -211,10 +320,10 @@ public class ProcessThread implements Runnable {
                 }
 
                 if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
-                    this.mainPanel.updateCurrentDirectory("An error has occur.");
+                    this.print("An error has occur.");
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
-                    this.mainPanel.updateCurrentDirectory("An failure has occur.");
+                    this.print("An failure has occur.");
                     throw new Exception();
                 } else {
                     return true;
@@ -226,13 +335,14 @@ public class ProcessThread implements Runnable {
         }
     }
 
-    // private method
+    // other private methods
     private String readReply (boolean print) {
         String reply = null;
         try {
             reply = this.in.readLine();
         } catch (Exception e) {
             this.print("Error while reading reply.");
+            e.printStackTrace();
             return null;
         }
         if (print) {this.print(reply);}
