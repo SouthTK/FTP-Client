@@ -7,10 +7,14 @@ import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import java.util.concurrent.ExecutorService; 
+import java.util.concurrent.Executors;
+
 import ui.MainPanel;
 
 public class ProcessThread implements Runnable {
     private MainPanel mainPanel;
+    private ExecutorService pool;
     private String username;
     private String password;
 
@@ -20,15 +24,16 @@ public class ProcessThread implements Runnable {
 
     public ProcessThread(MainPanel input) {
         this.mainPanel = input;
+        this.pool = Executors.newFixedThreadPool(1);
     }
 
     public void run() {
-        while(1 == 1) {
-            try {
-                Thread.sleep(5000);
-                System.out.println("Current user:" + this.username);
-            } catch (Exception e) {System.out.println("Process thread fails.");}
-        }
+        // while(1 == 1) {
+        //     try {
+        //         Thread.sleep(5000);
+        //         System.out.println("Current user:" + this.username);
+        //     } catch (Exception e) {System.out.println("Process thread fails.");}
+        // }
     }
 
     // backend methods
@@ -50,6 +55,7 @@ public class ProcessThread implements Runnable {
                 this.socket = new Socket(serverAddress, 21);
                 //this.socket.setSoTimeout(5000);
                 this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+                //could be null??
                 this.out = new PrintWriter(socket.getOutputStream(), true);
                 this.readReply(true);
 
@@ -113,8 +119,54 @@ public class ProcessThread implements Runnable {
             String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
             int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
             try {
-                Thread thread = new Thread(new ListThread(address, port, mainPanel));
-                if (this.list()) {thread.start();} 
+                ListThread runnable = new ListThread(address, port, mainPanel);
+                if (this.list()) {pool.execute(runnable);} 
+            } catch (Exception e) {
+                this.print("Failed to establish data connection.");
+            }
+        }
+    }
+
+    public void download(String path, String name) {
+        if (this.socket == null) {return;}
+
+        String reply = this.pasv();
+        if (reply == null) {return;}
+        else {
+            reply = reply.replaceAll("[^0-9,]", ""); 
+            String[] parts = reply.split(",");
+
+            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
+            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
+            path = path + "\\" + name;
+            try {
+                RetrThread runnable = new RetrThread(address, port, path);
+                if (this.retr(name, runnable)) {
+                    this.print("RETR " + name + " succeed.");
+                }
+            } catch (Exception e) {
+                this.print("Failed to establish data connection.");
+            }
+        }
+    }
+
+    public void upload(String path, String name) {
+        if (this.socket == null) {return;}
+
+        String reply = this.pasv();
+        if (reply == null) {return;}
+        else {
+            reply = reply.replaceAll("[^0-9,]", ""); 
+            String[] parts = reply.split(",");
+
+            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
+            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
+            try {
+                StorThread runnable = new StorThread(address, port, path);
+                if (this.stor(name, runnable)) {
+                    this.refresh();
+                    this.print("STOR " + name + " succeed.")
+                } 
             } catch (Exception e) {
                 this.print("Failed to establish data connection.");
             }
@@ -147,23 +199,6 @@ public class ProcessThread implements Runnable {
         if (this.socket == null || !this.dele(input)) {return;}
         else {
             this.refresh();
-        }
-    }
-
-    public void download() {
-        if (this.socket == null) {return;}
-
-        String reply = this.pasv();
-        if (reply == null) {return;}
-        else {
-            reply = reply.replaceAll("[^0-9,]", ""); 
-            String[] parts = reply.split(",");
-
-            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
-            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
-            
-            this.out.println("TYPE I");
-            this.readReply(true);
         }
     }
 
@@ -335,6 +370,69 @@ public class ProcessThread implements Runnable {
         }
     }
 
+    private boolean retr(String input, RetrThread dataProcess) {
+        if (this.socket == null) {return false;}
+        else {
+            try {
+                this.out.println("RETR " + input);
+                String reply = this.readReply(true);
+
+                while (reply.charAt(0) == '1') {
+                    reply = this.readReply(true);
+                }
+
+                if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                } else {
+                    this.pool.execute(dataProcess);
+                    return true;
+                }
+            } catch (Exception e) {
+                this.print("RETR " + input + " fails.");
+                return false;
+            }
+        }
+    }
+
+    private boolean stor(String input, StorThread dataProcess) {
+        if (this.socket == null) {return false;}
+        else {
+            try {
+                this.out.println("STOR " + input);
+                String reply = this.readReply(true);
+
+                if (reply.charAt(0) == '1') {
+                    this.pool.execute(dataProcess);   
+                } else if (reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                }
+                
+                this.readReply(true);
+
+                if (reply.charAt(0) == '3') {
+                    this.print("An error has occur.");
+                    throw new Exception();
+                } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
+                    this.print("An failure has occur.");
+                    throw new Exception();
+                } else {
+                    return true;
+                }
+            } catch (Exception e) {
+                this.print("STOR " + input + " fails.");
+                return false;
+            }
+        }
+    }
+
     // other private methods
     private String readReply (boolean print) {
         String reply = null;
@@ -348,17 +446,5 @@ public class ProcessThread implements Runnable {
         if (print) {this.print(reply);}
         if (reply.charAt(3) == '-') {return readReply(print);}
         else {return reply;}
-    }
-    
-    public void test() {
-        if (this.socket == null) {return;}
-        else {
-            this.out.println("CWD gnu");
-            try {
-                while (true) {
-                    this.print(this.in.readLine());
-                }
-            } catch (Exception e) {}
-        }
     }
 }

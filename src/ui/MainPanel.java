@@ -1,5 +1,8 @@
 package ui;
 
+import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
+
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
@@ -19,6 +22,8 @@ import javafx.application.Platform;
 
 import java.util.concurrent.ExecutorService; 
 import java.util.concurrent.Executors;
+
+import java.io.File;
 
 import background.ProcessThread;
 
@@ -164,14 +169,15 @@ public class MainPanel extends BorderPane {
         refreshButton.setText("Refresh");
         refreshButton.setPrefWidth(preWidth);
         refreshButton.setOnAction(event -> {
-            this.process.refresh();
+            pool.execute(() -> {
+                this.process.refresh();
+            });
         });
 
         Component.CustomButton deleteButton = new Component.CustomButton();
         deleteButton.setText("Delete");
         deleteButton.setPrefWidth(preWidth);
         deleteButton.setOnAction(event -> {
-            VBox box = (VBox) this.getLeft();
             Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
 
             if (selectedFile != null) {
@@ -186,7 +192,6 @@ public class MainPanel extends BorderPane {
         directoryButton.setText("Change directory");
         directoryButton.setPrefWidth(preWidth);
         directoryButton.setOnAction(event -> {
-            VBox box = (VBox) this.getLeft();
             Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
 
             if (selectedFile != null) {    
@@ -208,14 +213,15 @@ public class MainPanel extends BorderPane {
         mkdirButton.setText("Create Folder");
         mkdirButton.setPrefWidth(preWidth);
         mkdirButton.setOnAction(event -> {
-            this.process.createFolder(nameBox.getText());
+            pool.execute(() -> {
+                this.process.createFolder(nameBox.getText());
+            });
         });
 
         Component.CustomButton rmdirButton = new Component.CustomButton();
         rmdirButton.setText("Delete Folder");
         rmdirButton.setPrefWidth(preWidth);
         rmdirButton.setOnAction(event -> {
-            VBox box = (VBox) this.getLeft();
             Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
 
             if (selectedFile != null) {
@@ -230,14 +236,33 @@ public class MainPanel extends BorderPane {
         uploadButton.setText("Upload");
         uploadButton.setPrefWidth(preWidth);
         uploadButton.setOnAction(event -> {
-            //this.process.test();
+            FileChooser fileChooser = new FileChooser();
+            File selectedFile = fileChooser.showOpenDialog(this.manager.getStage());
+
+            if (selectedFile != null) {
+                pool.execute(() -> {
+                    String fileName = selectedFile.getName();
+                    String filePath = selectedFile.getAbsolutePath();
+                    this.process.upload(filePath, fileName);
+                });
+            }  
         });
 
         Component.CustomButton downloadButton = new Component.CustomButton();
         downloadButton.setText("Download");
         downloadButton.setPrefWidth(preWidth);
         downloadButton.setOnAction(event -> {
-            //this.process.test();
+            Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
+            DirectoryChooser folderChooser = new DirectoryChooser();
+            File selectedFolder = folderChooser.showDialog(this.manager.getStage());
+
+            if (selectedFile != null && selectedFolder != null) {
+                pool.execute(() -> {
+                    String fileName = selectedFile.getName();
+                    String filePath = selectedFolder.getAbsolutePath();
+                    this.process.download(filePath, fileName);
+                });
+            }  
         });
 
         VBox centerLayout = new VBox(10);
