@@ -21,13 +21,11 @@ public class ListThread implements Runnable {
     public void run() {
         try {
             this.mainPanel.clearDirectory(false);
-
             String reply = this.readReply();
             while (reply != null) {
                 this.mainPanel.updateDirectory(reply);
                 reply = this.readReply();
             }
-            
             socket.close();
         } catch (Exception e) {System.out.println("Reading list fails.");}
     }

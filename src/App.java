@@ -28,10 +28,8 @@ public class App extends Application {
         mainStage.show();
 
         ProcessThread process = new ProcessThread(mainPanel);
-        Thread processThread = new Thread(process);
         mainPanel.linkProcess(process);
         manager.linkProcess(process);
-        processThread.start();
     }
     public static void main(String[] args) {
         launch(args);

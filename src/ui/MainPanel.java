@@ -33,16 +33,16 @@ public class MainPanel extends BorderPane {
     private ExecutorService pool;
 
     private Component.CustomButton currentDirectory;
-    private TextArea outputBox;
     private Component.CustomView directoryView;
+    private TextArea outputBox;
+    private TextArea systemBox;
 
     public MainPanel(SceneManager manager) {  
         this.manager = manager; 
         this.pool = Executors.newFixedThreadPool(1);
         this.setUpTop(); 
         this.setUpLeft();
-        this.setUpCenter(); 
-        this.setUpBottom();
+        this.setUpRight(); 
         this.setStyle("-fx-background-color: rgba(20, 20, 20, 1);");
     }
 
@@ -69,7 +69,18 @@ public class MainPanel extends BorderPane {
         });   
     }
 
-    
+    public void updateSystem(String input) {
+        Platform.runLater(() -> {
+            this.systemBox.appendText(input + System.lineSeparator());
+        });    
+    }
+
+    public void clearSystem() {
+        Platform.runLater(() -> {
+            this.systemBox.clear();
+        });   
+    }
+
     public void updateDirectory(String input) {
         Platform.runLater(() -> {
             String[] parts = input.trim().split("\\s+");
@@ -130,6 +141,7 @@ public class MainPanel extends BorderPane {
                 this.updateCurrentDirectory("");
                 this.clearDirectory(true);  
                 this.clearOutput();
+                this.clearSystem();
         });
 
         Region spacer = new Region();
@@ -152,19 +164,43 @@ public class MainPanel extends BorderPane {
     private void setUpLeft() {
         this.currentDirectory = new Component.CustomButton();
         this.currentDirectory.setText("");
-        this.currentDirectory.setPrefWidth(200);
+        this.currentDirectory.setPrefWidth(900);
 
         this.directoryView = new Component.CustomView();
+        this.directoryView.setPrefWidth(900); 
+        this.directoryView.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
 
-        VBox leftLayout = new VBox(10);
-        leftLayout.getChildren().addAll(currentDirectory, directoryView); 
-        leftLayout.setPadding(new Insets(10, 10, 10, 10)); 
+        VBox leftBox = new VBox(10);
+        leftBox.getChildren().addAll(currentDirectory, directoryView); 
+        leftBox.setPadding(new Insets(10, 10, 10, 10)); 
 
+        this.outputBox = new TextArea();
+        this.outputBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
+        this.outputBox.setEditable(false); 
+        this.outputBox.setPromptText("Output will appear here...");
+        this.outputBox.setMaxWidth(600);
+        this.outputBox.setMinWidth(600);
+
+        this.systemBox = new TextArea();
+        this.systemBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
+        this.systemBox.setEditable(false); 
+        this.systemBox.setPromptText("Output will appear here...");
+        this.systemBox.setMaxWidth(290);
+        this.systemBox.setMinWidth(290);
+
+        HBox rightBox = new HBox(10);
+        rightBox.getChildren().addAll(outputBox, systemBox); 
+        rightBox.setPadding(new Insets(0, 10, 10, 10)); 
+
+        VBox leftLayout = new VBox(0);
+        leftLayout.getChildren().addAll(leftBox, rightBox);
+        leftLayout.setPadding(new Insets(0, 10, 10, 10)); 
         this.setLeft(leftLayout);
     }
 
-    private void setUpCenter() {
+    private void setUpRight() {
         int preWidth = 120;
+
         Component.CustomButton refreshButton = new Component.CustomButton();
         refreshButton.setText("Refresh");
         refreshButton.setPrefWidth(preWidth);
@@ -234,7 +270,7 @@ public class MainPanel extends BorderPane {
 
         Component.CustomButton uploadButton = new Component.CustomButton();
         uploadButton.setText("Upload");
-        uploadButton.setPrefWidth(preWidth);
+        uploadButton.setPrefWidth(preWidth * 2 + 20);
         uploadButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             File selectedFile = fileChooser.showOpenDialog(this.manager.getStage());
@@ -250,7 +286,7 @@ public class MainPanel extends BorderPane {
 
         Component.CustomButton downloadButton = new Component.CustomButton();
         downloadButton.setText("Download");
-        downloadButton.setPrefWidth(preWidth);
+        downloadButton.setPrefWidth(preWidth * 2 + 20);
         downloadButton.setOnAction(event -> {
             Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
             DirectoryChooser folderChooser = new DirectoryChooser();
@@ -265,24 +301,41 @@ public class MainPanel extends BorderPane {
             }  
         });
 
-        VBox centerLayout = new VBox(10);
-        centerLayout.getChildren().addAll(refreshButton, deleteButton, directoryButton, nameBox,
-                mkdirButton, rmdirButton, uploadButton, downloadButton); 
-        centerLayout.setPadding(new Insets(10, 10, 10, 10)); 
+        VBox fileControl = new VBox(30);
+        fileControl.getChildren().addAll(refreshButton, directoryButton, deleteButton);
 
-        this.setCenter(centerLayout);
+        VBox folderControl = new VBox(30);
+        folderControl.getChildren().addAll(nameBox,mkdirButton, rmdirButton);
+
+        HBox topControl = new HBox(20);
+        topControl.getChildren().addAll(fileControl, folderControl); 
+
+        VBox rightLayout = new VBox(30);
+        rightLayout.getChildren().addAll(topControl, uploadButton, downloadButton); 
+        rightLayout.setPadding(new Insets(10, 10, 10, 10)); 
+
+        this.setRight(rightLayout);
     }
 
-    private void setUpBottom() {
-        this.outputBox = new TextArea();
-        this.outputBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
-        this.outputBox.setEditable(false); 
-        this.outputBox.setPromptText("Output will appear here...");
+    // private void setUpBottom() {
+        // this.outputBox = new TextArea();
+        // this.outputBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
+        // this.outputBox.setEditable(false); 
+        // this.outputBox.setPromptText("Output will appear here...");
+        // this.outputBox.setMaxWidth(600);
+        // this.outputBox.setMinWidth(600);
 
-        VBox bottomLayout = new VBox(10);
-        bottomLayout.getChildren().addAll(outputBox); 
-        bottomLayout.setPadding(new Insets(0, 10, 10, 10)); 
+        // this.systemBox = new TextArea();
+        // this.systemBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
+        // this.systemBox.setEditable(false); 
+        // this.systemBox.setPromptText("Output will appear here...");
+        // this.systemBox.setMaxWidth(290);
+        // this.systemBox.setMinWidth(290);
 
-        this.setBottom(bottomLayout);
-    }
+        // HBox bottomLayout = new HBox(10);
+        // bottomLayout.getChildren().addAll(outputBox, systemBox); 
+        // bottomLayout.setPadding(new Insets(0, 10, 10, 10)); 
+
+        // this.setBottom(bottomLayout);
+    // }
 }

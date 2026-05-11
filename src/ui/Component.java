@@ -57,20 +57,35 @@ public class Component {
     public static class CustomView extends TableView<FileInfo> {
         public CustomView() {
             super();
-            TableColumn<Component.FileInfo, String> permissionColumn = new TableColumn<>("Permission");
+            TableColumn<FileInfo, String> permissionColumn = new TableColumn<>("Permission");
             permissionColumn.setCellValueFactory(cellData -> cellData.getValue().permissionProperty());
-            TableColumn<Component.FileInfo, String> linksColumn = new TableColumn<>("Links");
+            permissionColumn.setMinWidth(90);
+            permissionColumn.setMaxWidth(90);
+            TableColumn<FileInfo, String> linksColumn = new TableColumn<>("Links");
             linksColumn.setCellValueFactory(cellData -> cellData.getValue().linksProperty());
-            TableColumn<Component.FileInfo, String> ownerColumn = new TableColumn<>("Owner");
+            linksColumn.setMinWidth(50);
+            linksColumn.setMaxWidth(50);
+            TableColumn<FileInfo, String> ownerColumn = new TableColumn<>("Owner");
             ownerColumn.setCellValueFactory(cellData -> cellData.getValue().ownerProperty());
-            TableColumn<Component.FileInfo, String> groupColumn = new TableColumn<>("Group");
+            ownerColumn.setPrefWidth(100);
+            ownerColumn.setMinWidth(100);
+            ownerColumn.setMaxWidth(100);
+            TableColumn<FileInfo, String> groupColumn = new TableColumn<>("Group");
             groupColumn.setCellValueFactory(cellData -> cellData.getValue().groupProperty());
-            TableColumn<Component.FileInfo, String> sizeColumn = new TableColumn<>("Size");
+            groupColumn.setMinWidth(100);
+            groupColumn.setMaxWidth(100);
+            TableColumn<FileInfo, String> sizeColumn = new TableColumn<>("Size");
             sizeColumn.setCellValueFactory(cellData -> cellData.getValue().sizeProperty());
-            TableColumn<Component.FileInfo, String> timeColumn = new TableColumn<>("Time");
+            sizeColumn.setMinWidth(80);
+            sizeColumn.setMaxWidth(80);
+            TableColumn<FileInfo, String> timeColumn = new TableColumn<>("Time");
             timeColumn.setCellValueFactory(cellData -> cellData.getValue().timeProperty());
-            TableColumn<Component.FileInfo, String> nameColumn = new TableColumn<>("Name");
+            timeColumn.setMinWidth(90);
+            timeColumn.setMaxWidth(90);
+            TableColumn<FileInfo, String> nameColumn = new TableColumn<>("Name");
             nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+            
+            this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
             this.getColumns().addAll(permissionColumn, linksColumn, ownerColumn, groupColumn,
                     sizeColumn, timeColumn, nameColumn);
         }
