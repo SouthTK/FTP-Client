@@ -5,7 +5,8 @@ import ui.SceneManager;
 
 import background.ProcessThread;
 import background.ListThread;
-import background.RetvThread;
+import background.RetrThread;
+import background.StorThread;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -27,10 +28,8 @@ public class App extends Application {
         mainStage.show();
 
         ProcessThread process = new ProcessThread(mainPanel);
-        Thread processThread = new Thread(process);
         mainPanel.linkProcess(process);
         manager.linkProcess(process);
-        processThread.start();
     }
     public static void main(String[] args) {
         launch(args);

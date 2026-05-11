@@ -36,4 +36,8 @@ public class SceneManager {
         mainStage.setMaximized(false); 
         mainStage.setMaximized(true);
     }
+
+    public Stage getStage() {
+        return this.mainStage;
+    }
 }

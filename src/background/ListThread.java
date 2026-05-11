@@ -15,19 +15,19 @@ public class ListThread implements Runnable {
     ListThread(String address, int port, MainPanel input) throws Exception {
         this.mainPanel = input;
         this.socket = new Socket(address, port);
-        //this.socket.setSoTimeout(2000);
         this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
     }
 
     public void run() {
         try {
-            this.mainPanel.clearDirectory(false);            
+            this.mainPanel.clearDirectory(false);
             String reply = this.readReply();
             while (reply != null) {
                 this.mainPanel.updateDirectory(reply);
                 reply = this.readReply();
             }
-        } catch (Exception e) {System.out.println("Reading list fails.");}// never reach?
+            socket.close();
+        } catch (Exception e) {System.out.println("Reading list fails.");}
     }
 
     private String readReply() {

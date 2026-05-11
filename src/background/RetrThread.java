@@ -2,26 +2,35 @@ package background;
 
 import java.net.Socket;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.File;
 
 public class RetrThread implements Runnable {
+    private String path;
     private Socket socket;
-    private BufferedReader in;
+    private InputStream in;
 
-    RetrThread(String address, int port) throws Exception {
+    RetrThread(String address, int port, String path) throws Exception {
+        this.path = path;
         this.socket = new Socket(address, port);
-        //this.socket.setSoTimeout(2000);
-        this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        this.in = this.socket.getInputStream();
     }
 
     public void run() {
-        // try {
-        //     String reply = this.in.readLine();
-        //     while (reply != null) {
-        //         System.out.println(reply);
-        //         reply = this.in.readLine();
-        //     }
-        // } catch (Exception e) {System.out.println("reading fails.");}
+        try {
+            int count;
+            byte data[] = new byte[1024]; 
+            File downloadFile = new File(path);
+            FileOutputStream fileOut = new FileOutputStream(downloadFile);
+            
+            while ((count = in.read(data)) != -1) {
+              fileOut.write(data, 0, count);   
+            }
+            
+            fileOut.flush();
+            fileOut.close();
+            socket.close();
+        } catch (Exception e) {System.out.println("Download fails.");}
     }
 }
