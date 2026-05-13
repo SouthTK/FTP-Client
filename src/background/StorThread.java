@@ -38,4 +38,12 @@ public class StorThread implements Runnable {
             e.printStackTrace();
         }
     }
+
+    public void close() {
+        try {
+            this.socket.close();
+        } catch (Exception e) {
+            System.out.println("Failed to close or already been closed");
+        }
+    }
 }

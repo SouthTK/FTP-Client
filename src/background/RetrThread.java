@@ -33,4 +33,12 @@ public class RetrThread implements Runnable {
             socket.close();
         } catch (Exception e) {System.out.println("Download fails.");}
     }
+
+    public void close() {
+        try {
+            this.socket.close();
+        } catch (Exception e) {
+            System.out.println("Failed to close or already been closed");
+        }
+    }
 }

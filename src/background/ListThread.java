@@ -30,6 +30,14 @@ public class ListThread implements Runnable {
         } catch (Exception e) {System.out.println("Reading list fails.");}
     }
 
+    public void close() {
+        try {
+            this.socket.close();
+        } catch (Exception e) {
+            System.out.println("Failed to close or already been closed");
+        }
+    }
+
     private String readReply() {
         try {
             String reply = this.in.readLine();

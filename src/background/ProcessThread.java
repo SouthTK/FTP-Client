@@ -355,12 +355,14 @@ public class ProcessThread {
                     reply = this.readReply(true);  
                 } else if (reply.charAt(0) == '3') {
                     this.print("An error has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
                     this.print("An failure has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 }
-
+// TO DO: do I need to close here to? 
                 if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
                     this.print("An error has occur.");
                     throw new Exception();
@@ -389,9 +391,11 @@ public class ProcessThread {
                     reply = this.readReply(true);
                 } else if (reply.charAt(0) == '3') {
                     this.print("An error has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
                     this.print("An failure has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 }
 
@@ -423,9 +427,11 @@ public class ProcessThread {
                     reply = this.readReply(true);
                 } else if (reply.charAt(0) == '3') {
                     this.print("An error has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
                     this.print("An failure has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 }
 
