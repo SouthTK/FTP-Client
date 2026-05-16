@@ -32,7 +32,7 @@ public class MainPanel extends BorderPane {
     private ProcessThread process;
     private ExecutorService pool;
 
-    private Component.CustomButton currentDirectory;
+    private Button currentDirectory;
     private Component.CustomView directoryView;
     private TextArea outputBox;
     private TextArea systemBox;
@@ -43,7 +43,6 @@ public class MainPanel extends BorderPane {
         this.setUpTop(); 
         this.setUpLeft();
         this.setUpRight(); 
-        this.setStyle("-fx-background-color: rgba(20, 20, 20, 1);");
     }
 
     public void linkProcess(ProcessThread input) {
@@ -109,10 +108,8 @@ public class MainPanel extends BorderPane {
     private void setUpTop() {
         TextField addressBox = new TextField();
         addressBox.setPromptText("Address"); 
-        addressBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);"
-                + "-fx-prompt-text-fill: white;");
 
-        Component.CustomButton connectButton = new Component.CustomButton();
+        Button connectButton = new Button();
         connectButton.setText("Connect");
         connectButton.setPrefWidth(80);
         connectButton.setOnAction(event -> {
@@ -121,7 +118,7 @@ public class MainPanel extends BorderPane {
             });
         });
 
-        Component.CustomButton disconnectButton = new Component.CustomButton();
+        Button disconnectButton = new Button();
         disconnectButton.setText("Disconnect");
         disconnectButton.setPrefWidth(80);
         disconnectButton.setOnAction(event -> {
@@ -132,7 +129,7 @@ public class MainPanel extends BorderPane {
             });
         });
 
-        Component.CustomButton logoutButton = new Component.CustomButton();
+        Button logoutButton = new Button();
         logoutButton.setText("Log out");
         logoutButton.setPrefWidth(80);
         logoutButton.setOnAction(event -> {
@@ -153,36 +150,28 @@ public class MainPanel extends BorderPane {
         topLayout.setPadding(new Insets(0, 20, 20, 20)); 
         topLayout.setMinHeight(70);
         topLayout.setMaxHeight(70);
-        topLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 1);"
-                + "-fx-background-image: url('image/logo.png');"
-                + "-fx-background-repeat: no-repeat; "
-                + "-fx-background-position: center top; " 
-                + "-fx-background-size: 400 70;");
         this.setTop(topLayout);
     }
 
     private void setUpLeft() {
-        this.currentDirectory = new Component.CustomButton();
+        this.currentDirectory = new Button();
         this.currentDirectory.setText("");
         this.currentDirectory.setPrefWidth(900);
 
         this.directoryView = new Component.CustomView();
         this.directoryView.setPrefWidth(900); 
-        this.directoryView.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
 
         VBox leftBox = new VBox(10);
         leftBox.getChildren().addAll(currentDirectory, directoryView); 
         leftBox.setPadding(new Insets(10, 10, 10, 10)); 
 
         this.outputBox = new TextArea();
-        this.outputBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
         this.outputBox.setEditable(false); 
         this.outputBox.setPromptText("Output will appear here...");
         this.outputBox.setMaxWidth(600);
         this.outputBox.setMinWidth(600);
 
         this.systemBox = new TextArea();
-        this.systemBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
         this.systemBox.setEditable(false); 
         this.systemBox.setPromptText("Output will appear here...");
         this.systemBox.setMaxWidth(290);
@@ -201,7 +190,7 @@ public class MainPanel extends BorderPane {
     private void setUpRight() {
         int preWidth = 120;
 
-        Component.CustomButton refreshButton = new Component.CustomButton();
+        Button refreshButton = new Button();
         refreshButton.setText("Refresh");
         refreshButton.setPrefWidth(preWidth);
         refreshButton.setOnAction(event -> {
@@ -210,7 +199,7 @@ public class MainPanel extends BorderPane {
             });
         });
 
-        Component.CustomButton deleteButton = new Component.CustomButton();
+        Button deleteButton = new Button();
         deleteButton.setText("Delete");
         deleteButton.setPrefWidth(preWidth);
         deleteButton.setOnAction(event -> {
@@ -224,7 +213,7 @@ public class MainPanel extends BorderPane {
             }
         });
 
-        Component.CustomButton directoryButton = new Component.CustomButton();
+        Button directoryButton = new Button();
         directoryButton.setText("Change Directory");
         directoryButton.setPrefWidth(preWidth);
         directoryButton.setOnAction(event -> {
@@ -242,10 +231,8 @@ public class MainPanel extends BorderPane {
         nameBox.setPromptText("Folder Name"); 
         nameBox.setMinWidth(preWidth);
         nameBox.setMaxWidth(preWidth);
-        nameBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);"
-                + "-fx-prompt-text-fill: white;");
 
-        Component.CustomButton mkdirButton = new Component.CustomButton();
+        Button mkdirButton = new Button();
         mkdirButton.setText("Create Folder");
         mkdirButton.setPrefWidth(preWidth);
         mkdirButton.setOnAction(event -> {
@@ -254,7 +241,7 @@ public class MainPanel extends BorderPane {
             });
         });
 
-        Component.CustomButton rmdirButton = new Component.CustomButton();
+        Button rmdirButton = new Button();
         rmdirButton.setText("Delete Folder");
         rmdirButton.setPrefWidth(preWidth);
         rmdirButton.setOnAction(event -> {
@@ -268,7 +255,7 @@ public class MainPanel extends BorderPane {
             }  
         });
 
-        Component.CustomButton uploadButton = new Component.CustomButton();
+        Button uploadButton = new Button();
         uploadButton.setText("Upload");
         uploadButton.setPrefWidth(preWidth * 2 + 20);
         uploadButton.setOnAction(event -> {
@@ -284,7 +271,7 @@ public class MainPanel extends BorderPane {
             }  
         });
 
-        Component.CustomButton downloadButton = new Component.CustomButton();
+        Button downloadButton = new Button();
         downloadButton.setText("Download");
         downloadButton.setPrefWidth(preWidth * 2 + 20);
         downloadButton.setOnAction(event -> {
@@ -317,25 +304,4 @@ public class MainPanel extends BorderPane {
         this.setRight(rightLayout);
     }
 
-    // private void setUpBottom() {
-        // this.outputBox = new TextArea();
-        // this.outputBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
-        // this.outputBox.setEditable(false); 
-        // this.outputBox.setPromptText("Output will appear here...");
-        // this.outputBox.setMaxWidth(600);
-        // this.outputBox.setMinWidth(600);
-
-        // this.systemBox = new TextArea();
-        // this.systemBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1);");
-        // this.systemBox.setEditable(false); 
-        // this.systemBox.setPromptText("Output will appear here...");
-        // this.systemBox.setMaxWidth(290);
-        // this.systemBox.setMinWidth(290);
-
-        // HBox bottomLayout = new HBox(10);
-        // bottomLayout.getChildren().addAll(outputBox, systemBox); 
-        // bottomLayout.setPadding(new Insets(0, 10, 10, 10)); 
-
-        // this.setBottom(bottomLayout);
-    // }
 }

@@ -27,31 +27,25 @@ public class LoginPanel extends BorderPane {
         this.manager = manager;
         this.setUpCenter();
         this.setUpTop();
-        this.setStyle("-fx-background-image: url('image/pacific.jpg');" +
-                "-fx-background-size: cover;" + 
-                "-fx-background-repeat: no-repeat;" +
-                "-fx-background-position: center;");
     }
 
     private void setUpCenter() {
         Label loginLabel = new Label("Login into the app");
         loginLabel.setFont(new Font("Arial Black", 24));
-        loginLabel.setTextFill(Color.WHITE); 
+        loginLabel.setTextFill(Color.BLACK); 
         Label nextLabel = new Label("Or continue without login");
         nextLabel.setFont(new Font("Arial Black", 18));
-        nextLabel.setTextFill(Color.WHITE); 
+        nextLabel.setTextFill(Color.BLACK); 
 
         TextField usernameBox = new TextField();
         usernameBox.setPromptText("Username"); 
-        usernameBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1); -fx-prompt-text-fill: white; -fx-pref-height: 40px;");
         PasswordField passwordBox = new PasswordField();
         passwordBox.setPromptText("Password"); 
-        passwordBox.setStyle("-fx-control-inner-background: rgba(30, 30, 30, 1); -fx-prompt-text-fill: white; -fx-pref-height: 40px;");
 
-        Component.CustomButton loginButton = new Component.CustomButton();
+        Button loginButton = new Button();
         loginButton.setText("Log in");
         loginButton.setPrefWidth(300);
-        Component.CustomButton nextButton = new Component.CustomButton();
+        Button nextButton = new Button();
         nextButton.setText("Use without login");
         nextButton.setPrefWidth(300);
 
@@ -72,7 +66,6 @@ public class LoginPanel extends BorderPane {
         centerLayout.setPadding(new Insets(0, 20, 20, 20)); 
         centerLayout.setMaxWidth(300);
         centerLayout.setMaxHeight(300);
-        centerLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 2;");
 
         this.setCenter(centerLayout);
     }
@@ -83,11 +76,6 @@ public class LoginPanel extends BorderPane {
         topLayout.setPadding(new Insets(0, 20, 20, 20)); 
         topLayout.setMinHeight(70);
         topLayout.setMaxHeight(70);
-        topLayout.setStyle("-fx-background-color: rgba(0, 0, 0, 1);"
-                + "-fx-background-image: url('image/logo.png');"
-                + "-fx-background-repeat: no-repeat; "
-                + "-fx-background-position: center top; " 
-                + "-fx-background-size: 400 70;");
 
         this.setTop(topLayout);
     }
