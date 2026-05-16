@@ -6,14 +6,16 @@ import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.File;
 
-public class StorThread implements Runnable {
+import ui.MainPanel;
+
+public class StorThread extends DataThread {
     private String path;
     private Socket socket;
     private OutputStream out;
 
-    StorThread(String address, int port, String path) throws Exception {
+    StorThread(String pasvResponse, String path) throws Exception {
+        super(pasvResponse);
         this.path = path;
-        this.socket = new Socket(address, port);
         this.out = this.socket.getOutputStream();
     }
 
@@ -32,10 +34,20 @@ public class StorThread implements Runnable {
 
             out.flush();
             fileIn.close();
-            socket.close();
+            this.out.close();
+            this.socket.close();
         } catch (Exception e) {
             System.out.println("Download fails.");
             e.printStackTrace();
+        }
+    }
+
+    public void close() {
+        try {
+            this.out.close();
+            this.socket.close();
+        } catch (Exception e) {
+            System.out.println("Failed to close or already been closed");
         }
     }
 }
