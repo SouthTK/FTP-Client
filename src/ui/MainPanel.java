@@ -225,7 +225,7 @@ public class MainPanel extends BorderPane {
         });
 
         Component.CustomButton directoryButton = new Component.CustomButton();
-        directoryButton.setText("Change directory");
+        directoryButton.setText("Change Directory");
         directoryButton.setPrefWidth(preWidth);
         directoryButton.setOnAction(event -> {
             Component.FileInfo selectedFile = directoryView.getSelectionModel().getSelectedItem();
@@ -301,16 +301,16 @@ public class MainPanel extends BorderPane {
             }  
         });
 
-        VBox fileControl = new VBox(30);
+        VBox fileControl = new VBox(10);
         fileControl.getChildren().addAll(refreshButton, directoryButton, deleteButton);
 
-        VBox folderControl = new VBox(30);
+        VBox folderControl = new VBox(10);
         folderControl.getChildren().addAll(nameBox,mkdirButton, rmdirButton);
 
         HBox topControl = new HBox(20);
         topControl.getChildren().addAll(fileControl, folderControl); 
 
-        VBox rightLayout = new VBox(30);
+        VBox rightLayout = new VBox(10);
         rightLayout.getChildren().addAll(topControl, uploadButton, downloadButton); 
         rightLayout.setPadding(new Insets(10, 10, 10, 10)); 
 

@@ -82,7 +82,7 @@ public class ProcessThread {
             };   
         } else {this.print("Already connected to a server, disconnect first.");}
     }
-    // TO DO: add disconnect to overwrite current pool too// in case socket connection take too long
+
     public void disconnect() {
         if (this.socket == null) {return;}
         else {
@@ -106,17 +106,11 @@ public class ProcessThread {
     public void refresh() {
         if (this.socket == null || !this.pwd()) {return;}
 
-        String reply = this.pasv();
-        if (reply == null) {return;}
+        String pasvReply = this.pasv();
+        if (pasvReply == null) {return;}
         else {
-            reply = reply.replaceAll("[^0-9,]", ""); 
-            String[] parts = reply.split(",");
-
-            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
-            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
             try {
-                ListThread runnable = new ListThread(address, port, mainPanel);
-                
+                ListThread runnable = new ListThread(pasvReply, mainPanel);
                 if (this.list(runnable)) {
                     this.print("LIST succeed.");
                 }
@@ -129,17 +123,12 @@ public class ProcessThread {
     public void download(String path, String name) {
         if (this.socket == null) {return;}
 
-        String reply = this.pasv();
-        if (reply == null) {return;}
+        String pasvReply = this.pasv();
+        if (pasvReply == null) {return;}
         else {
-            reply = reply.replaceAll("[^0-9,]", ""); 
-            String[] parts = reply.split(",");
-
-            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
-            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
             path = path + "\\" + name;
             try {
-                RetrThread runnable = new RetrThread(address, port, path);
+                RetrThread runnable = new RetrThread(pasvReply, path);
                 if (this.retr(name, runnable)) {
                     this.print("RETR " + name + " succeed.");
                 }
@@ -152,17 +141,12 @@ public class ProcessThread {
     public void upload(String path, String name) {
         if (this.socket == null) {return;}
 
-        String reply = this.pasv();
+        String pasvReply = this.pasv();
         
-        if (reply == null) {return;}
+        if (pasvReply == null) {return;}
         else {
-            reply = reply.replaceAll("[^0-9,]", ""); 
-            String[] parts = reply.split(",");
-
-            String address = String.join(".", parts[0], parts[1], parts[2], parts[3]);
-            int port = 256 * Integer.parseInt(parts[4]) + Integer.parseInt(parts[5]);
             try {
-                StorThread runnable = new StorThread(address, port, path);
+                StorThread runnable = new StorThread(pasvReply, path);
                 if (this.stor(name, runnable)) {
                     this.print("STOR " + name + " succeed.");
                     this.refresh();
@@ -362,12 +346,14 @@ public class ProcessThread {
                     dataProcess.close();
                     throw new Exception();
                 }
-// TO DO: do I need to close here to? 
+
                 if (reply.charAt(0) == '1' || reply.charAt(0) == '3') {
                     this.print("An error has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
                     this.print("An failure has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else {
                     return true;
@@ -401,9 +387,11 @@ public class ProcessThread {
 
                 if (reply.charAt(0) == '3') {
                     this.print("An error has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
                     this.print("An failure has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else {
                     return true;
@@ -437,9 +425,11 @@ public class ProcessThread {
 
                 if (reply.charAt(0) == '3') {
                     this.print("An error has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else if (reply.charAt(0) == '4' || reply.charAt(0) == '5') {
                     this.print("An failure has occur.");
+                    dataProcess.close();
                     throw new Exception();
                 } else {
                     return true;

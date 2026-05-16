@@ -7,14 +7,13 @@ import java.io.InputStreamReader;
 
 import ui.MainPanel;
 
-public class ListThread implements Runnable {
-    private MainPanel mainPanel;
-    private Socket socket;
+public class ListThread extends DataThread {
     private BufferedReader in;
+    private MainPanel mainPanel;
 
-    ListThread(String address, int port, MainPanel input) throws Exception {
+    ListThread(String pasvResponse, MainPanel input) throws Exception {
+        super(pasvResponse);
         this.mainPanel = input;
-        this.socket = new Socket(address, port);
         this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
     }
 

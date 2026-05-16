@@ -6,14 +6,13 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.File;
 
-public class RetrThread implements Runnable {
+public class RetrThread extends DataThread {
     private String path;
-    private Socket socket;
     private InputStream in;
 
-    RetrThread(String address, int port, String path) throws Exception {
+    RetrThread(String pasvResponse, String path) throws Exception {
+        super(pasvResponse);
         this.path = path;
-        this.socket = new Socket(address, port);
         this.in = this.socket.getInputStream();
     }
 

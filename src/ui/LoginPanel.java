@@ -11,7 +11,6 @@ import javafx.scene.layout.VBox;
 
 import javafx.scene.text.Font;
 import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
 import javafx.scene.Scene;
 
 import javafx.geometry.Pos;
