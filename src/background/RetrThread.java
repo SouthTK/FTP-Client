@@ -29,12 +29,14 @@ public class RetrThread extends DataThread {
             
             fileOut.flush();
             fileOut.close();
-            socket.close();
+            this.in.close();
+            this.socket.close();
         } catch (Exception e) {System.out.println("Download fails.");}
     }
 
     public void close() {
         try {
+            this.in.close();
             this.socket.close();
         } catch (Exception e) {
             System.out.println("Failed to close or already been closed");

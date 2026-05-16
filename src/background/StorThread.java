@@ -34,7 +34,8 @@ public class StorThread extends DataThread {
 
             out.flush();
             fileIn.close();
-            socket.close();
+            this.out.close();
+            this.socket.close();
         } catch (Exception e) {
             System.out.println("Download fails.");
             e.printStackTrace();
@@ -43,6 +44,7 @@ public class StorThread extends DataThread {
 
     public void close() {
         try {
+            this.out.close();
             this.socket.close();
         } catch (Exception e) {
             System.out.println("Failed to close or already been closed");

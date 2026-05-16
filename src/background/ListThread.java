@@ -25,12 +25,14 @@ public class ListThread extends DataThread {
                 this.mainPanel.updateDirectory(reply);
                 reply = this.readReply();
             }
-            socket.close();
+            this.in.close();
+            this.socket.close();
         } catch (Exception e) {System.out.println("Reading list fails.");}
     }
 
     public void close() {
         try {
+            this.in.close();
             this.socket.close();
         } catch (Exception e) {
             System.out.println("Failed to close or already been closed");
