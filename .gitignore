@@ -24,4 +24,4 @@ hs_err_pid*
 replay_pid*
 
 # heavy dependencise
-lib/
+lib/javafx-sdk-17.0.17/

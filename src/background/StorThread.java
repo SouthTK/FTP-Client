@@ -22,14 +22,12 @@ public class StorThread extends DataThread {
     public void run() {
         try {
             int count;
-            System.out.println("went well 2");
             byte data[] = new byte[1024]; 
             File uploadFile = new File(path);
             FileInputStream fileIn = new FileInputStream(uploadFile); 
             
             while ((count = fileIn.read(data)) != -1) {
               out.write(data, 0, count);   
-              System.out.println("writing " + count + " bytes");
             }
 
             out.flush();
